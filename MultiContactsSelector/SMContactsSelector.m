@@ -232,6 +232,7 @@
         [info setValue:[NSString stringWithFormat:@"%@", [[nameString stringByReplacingOccurrencesOfString:@" " withString:@""] substringToIndex:1]] forKey:@"letter"];
         [info setValue:[NSString stringWithFormat:@"%@", nameString] forKey:@"name"];
         [info setValue:@"-1" forKey:@"rowSelected"];
+        [info setValue:[NSString stringWithFormat:@"%d", currentID] forKey:@"contactID"];
         
         if ((objs != @"") || ([[objs lowercaseString] rangeOfString:@"null"].location == NSNotFound))
 		{
@@ -270,7 +271,7 @@
                 [info setValue:@"" forKey:@"recordIDSelected"];
             }
 		}
-        
+        /*
         if ([recordIDs count] > 0) 
         {
             BOOL insert = ([[NSString stringWithFormat:@"%d", currentID] isRecordInArray:recordIDs]);
@@ -281,7 +282,8 @@
             }
         }
         else
-            [dataArray addObject:info];
+         */
+        [dataArray addObject:info];
         
         [info release];
         if (name) CFRelease(name);
@@ -455,13 +457,22 @@
 		
 		item = (NSMutableDictionary *)[obj objectAtIndex:indexPath.row];
 	}
-    
+  
 	cell.textLabel.text = [item objectForKey:@"name"];
 	cell.textLabel.adjustsFontSizeToFitWidth = YES;
     
 	[item setObject:cell forKey:@"cell"];
 	
-	BOOL checked = [[item objectForKey:@"checked"] boolValue];
+  BOOL checked = NO;
+  if ([recordIDs count] > 0) {
+    if ([recordIDs containsObject:[item objectForKey:@"contactID"]]) {
+      checked = YES;
+      
+      [item setValue:@"1" forKey:@"checked"];
+    }
+  } else {
+    checked = [[item objectForKey:@"checked"] boolValue];
+  }
 	UIImage *image = (checked) ? [UIImage imageNamed:@"checked.png"] : [UIImage imageNamed:@"unchecked.png"];
 	
 	UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
