@@ -25,11 +25,14 @@ typedef enum
 
 - (void)numberOfRowsSelected:(NSInteger)numberRows withData:(NSArray *)data andDataType:(DATA_CONTACT)type;
 
+@optional
+- (void)dataAddedTo:(NSDictionary*)person withData:(NSString*)data andDataType:(DATA_CONTACT)type;
+
 @end
 
 @class OverlayViewController;
 
-@interface SMContactsSelector : UIViewController <UITableViewDataSource, UITableViewDelegate, UISearchDisplayDelegate, UISearchBarDelegate, AlertTableViewDelegate>
+@interface SMContactsSelector : UIViewController <UITableViewDataSource, UITableViewDelegate, UISearchDisplayDelegate, UISearchBarDelegate, AlertTableViewDelegate, UIAlertViewDelegate>
 {
     
 	id delegate;

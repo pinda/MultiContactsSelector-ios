@@ -530,7 +530,8 @@
         objectsArray = (NSArray *)[[item valueForKey:@"recordID"] componentsSeparatedByString:@","];
     
     int objectsCount = [objectsArray count];
-    
+    BOOL checked = [[item objectForKey:@"checked"] boolValue];
+  
     if (objectsCount > 1)
     {
         selectedItem = item;
@@ -546,11 +547,19 @@
         
         [alertTable show];
         [alertTable release];
-    }
-    else
-    {
-        BOOL checked = [[item objectForKey:@"checked"] boolValue];
-        
+    } else if ([[objectsArray lastObject] isEqualToString:@""] && !checked) {
+      selectedItem = item;
+      NSString* message = @"Please enter your email.";
+      UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"alert:error:title", @"")
+                                                          message:message 
+                                                         delegate:nil 
+                                                cancelButtonTitle:NSLocalizedString(@"alert:cancel", @"")
+                                                otherButtonTitles:NSLocalizedString(@"alert:add", @""), nil];
+      alertView.alertViewStyle = UIAlertViewStylePlainTextInput;
+      alertView.delegate = self;
+      [alertView show];
+      [alertView release];
+    } else {        
         [item setObject:[NSNumber numberWithBool:!checked] forKey:@"checked"];
         
         UITableViewCell *cell = [item objectForKey:@"cell"];
@@ -565,6 +574,45 @@
             [selectedRow addObject:item];
         }
     }
+}
+
+#pragma mark UIAlertView delegate
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+  if(buttonIndex == 1) {
+    UITextField *input = [alertView textFieldAtIndex:0];
+    
+    if ([input.text length] == 0) {
+      NSString* message = @"Please enter your email.";
+      UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"alert:error:title", @"")
+                                                          message:message 
+                                                         delegate:nil 
+                                                cancelButtonTitle:NSLocalizedString(@"alert:cancel", @"")
+                                                otherButtonTitles:NSLocalizedString(@"alert:add", @""), nil];
+      alertView.alertViewStyle = UIAlertViewStylePlainTextInput;
+      alertView.delegate = self;
+      [alertView show];
+      [alertView release];
+    } else {
+      // Set row as selected
+      BOOL checked = [[selectedItem objectForKey:@"checked"] boolValue];
+      [selectedItem setObject:[NSNumber numberWithBool:!checked] forKey:@"checked"];
+      (requestData == DATA_CONTACT_TELEPHONE) ? [selectedItem setValue:input.text forKey:@"telephoneSelected"] : [selectedItem setValue:input.text forKey:@"emailSelected"];
+    
+      UITableViewCell *cell = [selectedItem objectForKey:@"cell"];
+      UIButton *button = (UIButton *)cell.accessoryView;
+    
+      UIImage *newImage = (checked) ? [UIImage imageNamed:@"unchecked.png"] : [UIImage imageNamed:@"checked.png"];
+      [button setBackgroundImage:newImage forState:UIControlStateNormal];
+    
+      // Set off delegate method
+      if ([self.delegate respondsToSelector:@selector(dataAddedTo:withData:andDataType:)]) 
+        [self.delegate dataAddedTo:selectedItem withData:input.text andDataType:requestData];
+    }
+  } else {
+    selectedItem = nil;
+    return;
+  }
 }
 
 #pragma mark
