@@ -174,9 +174,9 @@
 	else
 	{
 		arrayLetters = [[[NSArray englishAlphabet] createList] retain];
-        cancelItem.title = @"Cancel";
-        doneItem.title = @"Done";
-        alertTitle = @"Select";
+        cancelItem.title = NSLocalizedString(@"button:cancel", @"Cancel");
+        doneItem.title = NSLocalizedString(@"button:done", @"Done");
+        alertTitle = NSLocalizedString(@"alert:select", @"Select");
 	}
     
 	cancelItem.action = @selector(dismiss);
@@ -549,8 +549,8 @@
         [alertTable release];
     } else if ([[objectsArray lastObject] isEqualToString:@""] && !checked) {
       selectedItem = item;
-      NSString* message = @"Please enter your email.";
-      UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"alert:error:title", @"")
+	  NSString* message = [NSString stringWithFormat:NSLocalizedString(@"alert:email:input", @"Please enter %@'s email"), [item objectForKey:@"name"]];
+      UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"alert:input:title", @"")
                                                           message:message 
                                                          delegate:nil 
                                                 cancelButtonTitle:NSLocalizedString(@"alert:cancel", @"")
@@ -583,8 +583,8 @@
     UITextField *input = [alertView textFieldAtIndex:0];
     
     if ([input.text length] == 0) {
-      NSString* message = @"Please enter your email.";
-      UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"alert:error:title", @"")
+		  NSString* message = [NSString stringWithFormat:NSLocalizedString(@"alert:email:input", @"Please enter %@'s email"), [selectedItem objectForKey:@"name"]];
+      UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"alert:input:title", @"")
                                                           message:message 
                                                          delegate:nil 
                                                 cancelButtonTitle:NSLocalizedString(@"alert:cancel", @"")
