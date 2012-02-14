@@ -555,7 +555,12 @@
                                                          delegate:nil 
                                                 cancelButtonTitle:NSLocalizedString(@"alert:cancel", @"")
                                                 otherButtonTitles:NSLocalizedString(@"alert:add", @""), nil];
-      alertView.alertViewStyle = UIAlertViewStylePlainTextInput;
+      
+      if ([alertView respondsToSelector:@selector(setAlertViewStyle:)]) {
+        alertView.alertViewStyle = UIAlertViewStylePlainTextInput;
+      } else {
+        [alertView addTextFieldWithValue:@"" label:@"Email"];
+      }
       alertView.delegate = self;
       [alertView show];
       [alertView release];
@@ -589,7 +594,11 @@
                                                          delegate:nil 
                                                 cancelButtonTitle:NSLocalizedString(@"alert:cancel", @"")
                                                 otherButtonTitles:NSLocalizedString(@"alert:add", @""), nil];
-      alertView.alertViewStyle = UIAlertViewStylePlainTextInput;
+      if ([alertView respondsToSelector:@selector(setAlertViewStyle:)]) {
+        alertView.alertViewStyle = UIAlertViewStylePlainTextInput;
+      } else {
+        [alertView addTextFieldWithValue:@"" label:@"Email"];
+      }
       alertView.delegate = self;
       [alertView show];
       [alertView release];
