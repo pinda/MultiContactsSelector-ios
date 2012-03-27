@@ -572,6 +572,7 @@
         // Add buttons
         [av addButtonWithTitle:NSLocalizedString(@"alert:cancel", @"")];
         [av addButtonWithTitle:NSLocalizedString(@"alert:add", @"")];
+        av.cancelButtonIndex = 0;
         
         [av show];
       }
@@ -626,7 +627,8 @@
         // Add buttons
         [av addButtonWithTitle:NSLocalizedString(@"alert:cancel", @"")];
         [av addButtonWithTitle:NSLocalizedString(@"alert:add", @"")];
-        
+        av.cancelButtonIndex = 0;
+
         [av show];
       }
       
