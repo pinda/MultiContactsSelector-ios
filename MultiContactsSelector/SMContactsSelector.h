@@ -12,6 +12,7 @@
 #import "NSString+Additions.h"
 #import "Address+Additions.h"
 #import "UIAlertView+UITableView.h"
+#import "TSAlertView.h"
 
 typedef enum 
 {
@@ -32,7 +33,7 @@ typedef enum
 
 @class OverlayViewController;
 
-@interface SMContactsSelector : UIViewController <UITableViewDataSource, UITableViewDelegate, UISearchDisplayDelegate, UISearchBarDelegate, AlertTableViewDelegate, UIAlertViewDelegate>
+@interface SMContactsSelector : UIViewController <UITableViewDataSource, UITableViewDelegate, UISearchDisplayDelegate, UISearchBarDelegate, AlertTableViewDelegate, UIAlertViewDelegate, TSAlertViewDelegate>
 {
     
 	id delegate;

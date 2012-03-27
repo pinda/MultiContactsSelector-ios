@@ -7,6 +7,7 @@
 //
 
 #import "SMContactsSelector.h"
+#import "TSAlertView.h"
 
 @interface NSArray (Alphabet)
 
@@ -549,7 +550,7 @@
         [alertTable release];
     } else if ([[objectsArray lastObject] isEqualToString:@""] && !checked) {
       selectedItem = item;
-	  NSString* message = [NSString stringWithFormat:NSLocalizedString(@"alert:email:input", @"Please enter %@'s email"), [item objectForKey:@"name"]];
+      NSString* message = [NSString stringWithFormat:NSLocalizedString(@"alert:email:input", @"Please enter %@'s email"), [item objectForKey:@"name"]];
       UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"alert:input:title", @"")
                                                           message:message 
                                                          delegate:nil 
@@ -558,12 +559,23 @@
       
       if ([alertView respondsToSelector:@selector(setAlertViewStyle:)]) {
         alertView.alertViewStyle = UIAlertViewStylePlainTextInput;
+        alertView.delegate = self;
+        [alertView show];
+        [alertView release];
       } else {
-        [alertView addTextFieldWithValue:@"" label:@"Email"];
+        TSAlertView* av = [[[TSAlertView alloc] init] autorelease];
+        av.title = NSLocalizedString(@"alert:input:title", @"");
+        av.message = message;
+        av.style = TSAlertViewStyleInput;
+        av.delegate = self;
+
+        // Add buttons
+        [av addButtonWithTitle:NSLocalizedString(@"alert:cancel", @"")];
+        [av addButtonWithTitle:NSLocalizedString(@"alert:add", @"")];
+        
+        [av show];
       }
-      alertView.delegate = self;
-      [alertView show];
-      [alertView release];
+      
     } else {        
         [item setObject:[NSNumber numberWithBool:!checked] forKey:@"checked"];
         
@@ -585,23 +597,39 @@
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
   if(buttonIndex == 1) {
-    UITextField *input = [alertView textFieldAtIndex:0];
+    UITextField* input;
+    if ([alertView respondsToSelector:@selector(textFieldAtIndex:)]) {
+      input = [alertView textFieldAtIndex:0];
+    } else {
+      TSAlertView* av = (TSAlertView*)alertView;
+      input = av.inputTextField;
+    }
     
     if ([input.text length] == 0) {
 		  NSString* message = [NSString stringWithFormat:NSLocalizedString(@"alert:email:input", @"Please enter %@'s email"), [selectedItem objectForKey:@"name"]];
       UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"alert:input:title", @"")
                                                           message:message 
-                                                         delegate:nil 
+                                                         delegate:self 
                                                 cancelButtonTitle:NSLocalizedString(@"alert:cancel", @"")
                                                 otherButtonTitles:NSLocalizedString(@"alert:add", @""), nil];
       if ([alertView respondsToSelector:@selector(setAlertViewStyle:)]) {
         alertView.alertViewStyle = UIAlertViewStylePlainTextInput;
+        [alertView show];
+        [alertView release];
       } else {
-        [alertView addTextFieldWithValue:@"" label:@"Email"];
+        TSAlertView* av = [[[TSAlertView alloc] init] autorelease];
+        av.title = NSLocalizedString(@"alert:input:title", @"");
+        av.message = message;
+        av.style = TSAlertViewStyleInput;
+        av.delegate = self;
+        
+        // Add buttons
+        [av addButtonWithTitle:NSLocalizedString(@"alert:cancel", @"")];
+        [av addButtonWithTitle:NSLocalizedString(@"alert:add", @"")];
+        
+        [av show];
       }
-      alertView.delegate = self;
-      [alertView show];
-      [alertView release];
+      
     } else {
       // Set row as selected
       BOOL checked = [[selectedItem objectForKey:@"checked"] boolValue];
