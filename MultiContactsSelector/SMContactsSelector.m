@@ -143,6 +143,7 @@
 @synthesize requestData;
 @synthesize alertTitle;
 @synthesize recordIDs;
+@synthesize hiddenIDs;
 
 - (void)viewDidLoad
 {
@@ -284,11 +285,13 @@
         }
         else
          */
-        [dataArray addObject:info];
+    if (![self.hiddenIDs containsObject:[info objectForKey:@"contactID"]]) {
+      [dataArray addObject:info];
+    }
         
-        [info release];
-        if (name) CFRelease(name);
-        if (lastNameString) CFRelease(lastNameString);
+    [info release];
+    if (name) CFRelease(name);
+    if (lastNameString) CFRelease(lastNameString);
 	}
 	
 	CFRelease(allPeople);

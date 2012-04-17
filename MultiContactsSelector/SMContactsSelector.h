@@ -38,7 +38,8 @@ typedef enum
     
 	id delegate;
 	DATA_CONTACT requestData;
-    NSArray *recordIDs;
+  NSArray *recordIDs;
+  NSArray *hiddenIDs;
     
 @private
     
@@ -80,5 +81,6 @@ typedef enum
 @property (nonatomic) DATA_CONTACT requestData;
 @property (nonatomic, retain) NSString *alertTitle;
 @property (nonatomic, retain) NSArray *recordIDs;
+@property (nonatomic, retain) NSArray *hiddenIDs;
 
 @end
