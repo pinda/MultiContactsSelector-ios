@@ -27,8 +27,11 @@
         if (currentID == recordID) 
             break;
     }
-
-    return person;
+    
+  CFRelease(addressBook);
+  CFRelease(allPeople);
+  
+  return person;
 }
 
 + (NSArray *)getAllRecordIDs
@@ -43,12 +46,16 @@
 	{
 		ABRecordRef person = CFArrayGetValueAtIndex(allPeople, i);
         
-        int recordID = (int)ABRecordGetRecordID(person);
+    int recordID = (int)ABRecordGetRecordID(person);
         
-        [items addObject:[NSNumber numberWithInt:recordID]];
-    }
-    
-    return (NSArray *)items;
+    [items addObject:[NSNumber numberWithInt:recordID]];
+  }
+  
+  CFRelease(addressBook);
+  CFRelease(allPeople);
+  [items release];
+  
+  return (NSArray *)items;
 }
 
 @end
