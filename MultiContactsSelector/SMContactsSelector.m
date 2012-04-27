@@ -302,7 +302,7 @@
     }
   
     for (int i = 0; i < [arrayLetters count]; i++) {
-      NSPredicate* predicate = [NSPredicate predicateWithFormat:@"name MATCHES[cd] '^[0-9]+'"];
+      NSPredicate* predicate = [NSPredicate predicateWithFormat:@"(name MATCHES[cd] '^ *[0-9]+\\. .*') || (name == nil)"];
       NSMutableArray* filteredArray = [NSMutableArray arrayWithArray:[data filteredArrayUsingPredicate:predicate]];
     
       [info setValue:filteredArray forKey:@"#"];
