@@ -59,6 +59,8 @@ typedef enum
     AlertTableView *alertTable;
     NSInteger savedScopeButtonIndex;
     NSString *alertTitle;
+  UIView *modalView;
+  UIActivityIndicatorView *activityIndicator;
 }
 
 - (void)dismiss;

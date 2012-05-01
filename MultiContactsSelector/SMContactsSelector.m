@@ -5,7 +5,7 @@
 //  Created by Sergio on 03/03/11.
 //  Copyright 2011 Sergio. All rights reserved.
 //
-
+#import <QuartzCore/QuartzCore.h>
 #import "SMContactsSelector.h"
 #import "TSAlertView.h"
 
@@ -184,6 +184,22 @@
   CFIndex nPeople = ABAddressBookGetPersonCount(addressBook);
   dataArray = [NSMutableArray new];
   
+  // Add modal loading window
+  modalView = [[UIView alloc] initWithFrame:CGRectMake((self.view.frame.size.width / 2) - 50, 
+                                                      (self.view.frame.size.height / 2) - 50, 
+                                                      100,
+                                                       100)];
+  modalView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.5f];
+  modalView.layer.cornerRadius = 5.0f;  
+  
+  // Add activity indicator
+  activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+  activityIndicator.center = CGPointMake(modalView.frame.size.width / 2, modalView.frame.size.height / 2);
+  [activityIndicator startAnimating];
+  [modalView addSubview:activityIndicator];
+  
+  [self.view addSubview:modalView];
+  
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
   
     for (int i = 0; i < nPeople; i++) {
@@ -318,6 +334,9 @@
     dispatch_async(dispatch_get_main_queue(), ^{
       //Update the UI
       [self.table reloadData];
+      
+      [modalView setHidden:YES];
+      [activityIndicator stopAnimating];
     });
   });
 }
@@ -681,22 +700,19 @@
   int i = 0;
   NSString *sectionString = [arrayLetters objectAtIndex:section];
   
-  NSArray *array = (NSArray *)[[dataArray objectAtIndex:0] valueForKey:sectionString];
+  if ([dataArray count] > 0) {
+    NSArray *array = (NSArray *)[[dataArray objectAtIndex:0] valueForKey:sectionString];
   
-  for (NSDictionary *dict in array)
-  {
-    NSString *name = [dict valueForKey:@"name"];
-    name = [name stringByReplacingOccurrencesOfString:@" " withString:@""];
+    for (NSDictionary *dict in array) {
+      NSString *name = [dict valueForKey:@"name"];
+      name = [name stringByReplacingOccurrencesOfString:@" " withString:@""];
     
-    if (![name isLetter]) 
-    {
-      i++;
-    }
-    else
-    {
-      if ([[[name substringToIndex:1] uppercaseString] isEqualToString:[arrayLetters objectAtIndex:section]]) 
-      {
+      if (![name isLetter]) {
         i++;
+      } else {
+        if ([[[name substringToIndex:1] uppercaseString] isEqualToString:[arrayLetters objectAtIndex:section]]) {
+          i++;
+        }
       }
     }
   }
