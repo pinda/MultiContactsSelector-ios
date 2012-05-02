@@ -544,6 +544,7 @@
       [alertView show];
       [alertView release];
     } else {
+      [alertView release];
       TSAlertView* av = [[[TSAlertView alloc] init] autorelease];
       av.title = NSLocalizedString(@"alert:input:title", @"");
       av.message = message;
@@ -556,6 +557,10 @@
       av.cancelButtonIndex = 0;
       
       [av show];
+      
+      if (tableView == self.searchDisplayController.searchResultsTableView) {
+        av.frame = CGRectMake(av.frame.origin.x, av.frame.origin.y - 100, av.frame.size.width, av.frame.size.height);
+      }
     }
     
   } else {        
@@ -599,6 +604,7 @@
         [alertView show];
         [alertView release];
       } else {
+        [alertView release];
         TSAlertView* av = [[[TSAlertView alloc] init] autorelease];
         av.title = NSLocalizedString(@"alert:input:title", @"");
         av.message = message;
