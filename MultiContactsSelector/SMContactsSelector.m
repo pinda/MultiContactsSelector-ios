@@ -433,7 +433,6 @@
   if (tableView == self.searchDisplayController.searchResultsTableView)
   {
     item = (NSMutableDictionary *)[self.filteredListContent objectAtIndex:indexPath.row];
-    NSLog(@"%@", item);
   }
   else
   {
