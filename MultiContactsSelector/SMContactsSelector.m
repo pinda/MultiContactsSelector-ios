@@ -181,6 +181,7 @@
   
   ABAddressBookRef addressBook = ABAddressBookCreate( );
   CFArrayRef allPeople = ABAddressBookCopyArrayOfAllPeople( addressBook );
+  
   CFIndex nPeople = ABAddressBookGetPersonCount(addressBook);
   dataArray = [NSMutableArray new];
   
@@ -432,6 +433,7 @@
   if (tableView == self.searchDisplayController.searchResultsTableView)
   {
     item = (NSMutableDictionary *)[self.filteredListContent objectAtIndex:indexPath.row];
+    NSLog(@"%@", item);
   }
   else
   {
@@ -450,7 +452,9 @@
     if ([recordIDs containsObject:[item objectForKey:@"contactID"]]) {
       checked = YES;
       
-      [item setValue:@"1" forKey:@"checked"];
+      [item setValue:[NSNumber numberWithBool:YES] forKey:@"checked"];
+    } else {
+      checked = [[item objectForKey:@"checked"] boolValue];
     }
   } else {
     checked = [[item objectForKey:@"checked"] boolValue];
@@ -566,16 +570,17 @@
   } else {        
     [item setObject:[NSNumber numberWithBool:!checked] forKey:@"checked"];
     
-    UITableViewCell *cell = [item objectForKey:@"cell"];
+    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
     UIButton *button = (UIButton *)cell.accessoryView;
-    
+
     UIImage *newImage = (checked) ? [UIImage imageNamed:@"unchecked.png"] : [UIImage imageNamed:@"checked.png"];
     [button setBackgroundImage:newImage forState:UIControlStateNormal];
     
     if (tableView == self.searchDisplayController.searchResultsTableView)
     {
-      [self.searchDisplayController.searchResultsTableView reloadData];
       [selectedRow addObject:item];
+
+      [self.searchDisplayController.searchResultsTableView reloadData];
     }
   }
 }
