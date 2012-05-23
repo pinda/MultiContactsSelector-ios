@@ -48,6 +48,8 @@ typedef enum
 	IBOutlet UIBarButtonItem *doneItem;
 	IBOutlet UISearchBar *barSearch;
     IBOutlet UISearchBar *searchBar;
+  
+  BOOL loading;
     
     UITableView *currentTable;
     NSArray *data;
