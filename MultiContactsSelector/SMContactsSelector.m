@@ -148,19 +148,28 @@
 @synthesize hiddenIDs;
 
 - (void)loadContacts {
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+  dispatch_queue_t queue = dispatch_queue_create("com.Invy.multiContacts", 0);
+  dispatch_async(queue, ^{
     NSMutableDictionary* letterInfo = [NSMutableDictionary new];
     NSArray* sortedContacts = [[ABContactsHelper contacts] sortedArrayUsingSelector:@selector(compareByName:)];
     
     for (ABContact* contact in sortedContacts) {      
       NSMutableDictionary *info = [NSMutableDictionary new];
+
+      NSString *name = contact.fullName;
+      if ([name length] == 0) {
+        name = contact.contactName;
+      }
       
-      NSString* firstLetter = [[contact.fullName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] substringToIndex:1];
+      NSString* firstLetter = [[name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] substringToIndex:1];
       
       [info setValue:firstLetter forKey:@"letter"];
-      [info setValue:[NSString stringWithFormat:@"%@", contact.fullName] forKey:@"name"];
+      [info setValue:[NSString stringWithFormat:@"%@", name] forKey:@"name"];
       [info setValue:@"-1" forKey:@"rowSelected"];
       [info setValue:[NSString stringWithFormat:@"%d", (int)contact.recordID] forKey:@"contactID"];
+      if ([recordIDs containsObject:[info objectForKey:@"contactID"]]) {
+        [info setValue:[NSNumber numberWithBool:YES] forKey:@"checked"];
+      }
       
       NSString *objs = @"";
       BOOL lotsItems = NO;
@@ -208,6 +217,13 @@
             NSMutableArray* arrayForLetter = [[NSMutableArray alloc] initWithObjects:info, nil];
             [letterInfo setValue:arrayForLetter forKey:firstLetter];
           }
+        } else {
+          if ([letterInfo objectForKey:@"#"]) {
+            [[letterInfo objectForKey:@"#"] addObject:info];
+          } else {
+            NSMutableArray* arrayForLetter = [[NSMutableArray alloc] initWithObjects:info, nil];
+            [letterInfo setValue:arrayForLetter forKey:@"#"];
+          }
         }
       }
       
@@ -228,20 +244,7 @@
     
     self.searchDisplayController.searchResultsTableView.scrollEnabled = YES;
     self.searchDisplayController.searchBar.showsCancelButton = NO;
-    /*
-    NSMutableDictionary	*info = [NSMutableDictionary new];
-    for (int i = 0; i < [arrayLetters count]; i++) {
-      NSPredicate* predicate = [NSPredicate predicateWithFormat:@"name BEGINSWITH[cd] %@", [arrayLetters objectAtIndex:i]];
-      NSMutableArray* filteredArray = [NSMutableArray arrayWithArray:[data filteredArrayUsingPredicate:predicate]];
-      
-      [info setValue:filteredArray forKey:[arrayLetters objectAtIndex:i]];
-    }
     
-    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"(name MATCHES[cd] '^ *[0-9]+\\. .*') || (name == nil)"];
-    NSMutableArray* filteredArray = [NSMutableArray arrayWithArray:[data filteredArrayUsingPredicate:predicate]];
-      
-    [info setValue:filteredArray forKey:@"#"];
-    */
     data = [[NSArray arrayWithArray:dataArray] retain];
     dataArray = [[NSMutableArray alloc] initWithObjects:letterInfo, nil];
     self.filteredListContent = [NSMutableArray arrayWithCapacity:[data count]];
@@ -310,6 +313,14 @@
   modalView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.5f];
   modalView.layer.cornerRadius = 5.0f;  
   
+  UILabel* loadingLabel = [[UILabel alloc] initWithFrame:CGRectMake(5, modalView.frame.size.height - 20, modalView.frame.size.width - 10, 10)];
+  loadingLabel.text = NSLocalizedString(@"smcontactsselector:loading", @"Loading contacts...");
+  loadingLabel.textAlignment = UITextAlignmentCenter;
+  loadingLabel.textColor = [UIColor whiteColor];
+  loadingLabel.backgroundColor = [UIColor clearColor];
+  loadingLabel.font = [UIFont systemFontOfSize:10.0];
+  [modalView addSubview:loadingLabel];
+  
   // Add activity indicator
   activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
   activityIndicator.center = CGPointMake(modalView.frame.size.width / 2, modalView.frame.size.height / 2);
@@ -321,47 +332,12 @@
 
 - (void)acceptAction
 {
-  NSMutableArray *objects = [NSMutableArray new];
-  loading = NO;
-  
   if ([dataArray count] > 0) {
-    for (int i = 0; i < [arrayLetters count]; i++) {
-      NSMutableArray *obj = [[dataArray objectAtIndex:0] valueForKey:[arrayLetters objectAtIndex:i]];
+    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"checked == 1"];
+    NSMutableArray* checkedArray = [NSMutableArray arrayWithArray:[data filteredArrayUsingPredicate:predicate]];
     
-      for (int x = 0; x < [obj count]; x++) {
-        NSMutableDictionary *item = (NSMutableDictionary *)[obj objectAtIndex:x];
-        BOOL checked = [[item objectForKey:@"checked"] boolValue];
-      
-        if (checked) {
-          NSString *str = @"";
-        
-          if (requestData == DATA_CONTACT_TELEPHONE) {
-            str = [item valueForKey:@"telephoneSelected"];
-          
-            if (![str isEqualToString:@""]) {
-              [objects addObject:str];
-            }
-          } else if (requestData == DATA_CONTACT_EMAIL) {
-            str = [item valueForKey:@"emailSelected"];
-          
-            if (![str isEqualToString:@""]) {
-              [objects addObject:str];
-            }
-          } else {
-            str = [item valueForKey:@"recordID"];
-          
-            if (![str isEqualToString:@""]) {
-              [objects addObject:str];
-            }
-          }
-        }
-      }
-    }
-  
     if ([self.delegate respondsToSelector:@selector(numberOfRowsSelected:withData:andDataType:)]) 
-      [self.delegate numberOfRowsSelected:[objects count] withData:objects andDataType:requestData];
-  
-    [objects release];
+      [self.delegate numberOfRowsSelected:[checkedArray count] withData:checkedArray andDataType:requestData];
   }
   [self dismiss];
 }

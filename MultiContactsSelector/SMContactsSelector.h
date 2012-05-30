@@ -49,8 +49,6 @@ typedef enum
 	IBOutlet UISearchBar *barSearch;
     IBOutlet UISearchBar *searchBar;
   
-  BOOL loading;
-    
     UITableView *currentTable;
     NSArray *data;
 	NSMutableArray *arrayLetters;
