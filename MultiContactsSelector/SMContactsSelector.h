@@ -39,6 +39,7 @@ typedef enum
 	id delegate;
 	DATA_CONTACT requestData;
   NSArray *recordIDs;
+  NSArray *tokens;
   NSArray *hiddenIDs;
     
 @private
@@ -60,6 +61,7 @@ typedef enum
     NSInteger savedScopeButtonIndex;
     NSString *alertTitle;
   UIView *modalView;
+  BOOL forceReload;
   UIActivityIndicatorView *activityIndicator;
 }
 
@@ -82,6 +84,7 @@ typedef enum
 @property (nonatomic, retain) UITableView *currentTable;
 @property (nonatomic) DATA_CONTACT requestData;
 @property (nonatomic, retain) NSString *alertTitle;
+@property (nonatomic, retain) NSArray *tokens;
 @property (nonatomic, retain) NSArray *recordIDs;
 @property (nonatomic, retain) NSArray *hiddenIDs;
 

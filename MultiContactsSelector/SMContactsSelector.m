@@ -144,6 +144,7 @@
 @synthesize arrayLetters;
 @synthesize requestData;
 @synthesize alertTitle;
+@synthesize tokens;
 @synthesize recordIDs;
 @synthesize hiddenIDs;
 
@@ -161,15 +162,20 @@
         name = contact.contactName;
       }
       
+      // If name is still nil add email
+      if ([name length] == 0) {
+        if ([contact.emailArray count] > 0) {
+          name = [contact.emailArray lastObject];
+        } else {
+          name = @"-";
+        }
+      }
       NSString* firstLetter = [[name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] substringToIndex:1];
       
       [info setValue:firstLetter forKey:@"letter"];
       [info setValue:[NSString stringWithFormat:@"%@", name] forKey:@"name"];
       [info setValue:@"-1" forKey:@"rowSelected"];
       [info setValue:[NSString stringWithFormat:@"%d", (int)contact.recordID] forKey:@"contactID"];
-      if ([recordIDs containsObject:[info objectForKey:@"contactID"]]) {
-        [info setValue:[NSNumber numberWithBool:YES] forKey:@"checked"];
-      }
       
       NSString *objs = @"";
       BOOL lotsItems = NO;
@@ -207,6 +213,13 @@
           [info setValue:[NSString stringWithFormat:@"%d", (int)contact.recordID] forKey:@"recordID"];
           
           [info setValue:@"" forKey:@"recordIDSelected"];
+        }
+        
+        for (NSDictionary* token in self.tokens) {
+          if ([token isKindOfClass:[NSDictionary class]] && [[token objectForKey:@"id"] isEqualToString:[info objectForKey:@"contactID"]]) {
+            [info setValue:[NSNumber numberWithBool:YES] forKey:@"checked"];
+            [info setValue:[token objectForKey:@"email"] forKey:@"emailSelected"];
+          }
         }
           
         // Append to array based on first letter
@@ -262,6 +275,14 @@
       [activityIndicator stopAnimating];
     });
   });
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+  [super viewDidAppear:animated];
+  
+  forceReload = YES;
+  
+  [self.table reloadData];
 }
 
 - (void)viewDidLoad {
@@ -339,6 +360,7 @@
     if ([self.delegate respondsToSelector:@selector(numberOfRowsSelected:withData:andDataType:)]) 
       [self.delegate numberOfRowsSelected:[checkedArray count] withData:checkedArray andDataType:requestData];
   }
+  forceReload = NO;
   [self dismiss];
 }
 
@@ -349,6 +371,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+  forceReload = NO;
   if (tableView == self.searchDisplayController.searchResultsTableView)
   {
     [self tableView:self.searchDisplayController.searchResultsTableView accessoryButtonTappedForRowWithIndexPath:indexPath];
@@ -390,18 +413,25 @@
   
   [item setObject:cell forKey:@"cell"];
   
-  BOOL checked = NO;
-  if ([recordIDs count] > 0) {
-    if ([recordIDs containsObject:[item objectForKey:@"contactID"]]) {
+  BOOL checked = NO;  
+  if ([self.recordIDs count] > 0 && forceReload) {
+    if ([self.recordIDs containsObject:[item objectForKey:@"contactID"]]) {
       checked = YES;
       
       [item setValue:[NSNumber numberWithBool:YES] forKey:@"checked"];
     } else {
-      checked = [[item objectForKey:@"checked"] boolValue];
+      checked = NO;
+      
+      [item setValue:[NSNumber numberWithBool:NO] forKey:@"checked"];
     }
+  } else if ([self.recordIDs count] == 0 && forceReload) {
+    checked = NO;
+    
+    [item setValue:[NSNumber numberWithBool:NO] forKey:@"checked"];
   } else {
     checked = [[item objectForKey:@"checked"] boolValue];
   }
+
   UIImage *image = (checked) ? [UIImage imageNamed:@"checked.png"] : [UIImage imageNamed:@"unchecked.png"];
   
   UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -518,7 +548,7 @@
 
     UIImage *newImage = (checked) ? [UIImage imageNamed:@"unchecked.png"] : [UIImage imageNamed:@"checked.png"];
     [button setBackgroundImage:newImage forState:UIControlStateNormal];
-    
+
     if (tableView == self.searchDisplayController.searchResultsTableView)
     {
       [selectedRow addObject:item];
